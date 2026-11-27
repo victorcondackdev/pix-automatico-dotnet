@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>PixAutomatico</RootNamespace>
+    <AssemblyName>PixAutomatico</AssemblyName>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>PixAutomatico</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Victor Condack</Authors>
+    <Description>Pix Automático engine for .NET: recurrences and authorization journeys 1-4, the 2-10 day scheduling window, settlement windows, PERMITE_3R_7D retries, payer maximum value and daily limit, cancellation cut-offs, Brazilian banking calendar and QR payloads, on a simulated clock. Transcripts are byte-identical to pix-automatico-go.</Description>
+    <PackageTags>pix;pix-automatico;recorrencia;payments;brazil;bcb;billing;subscriptions</PackageTags>
+    <RepositoryUrl>https://github.com/victorcondackdev/pix-automatico-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/victorcondackdev/pix-automatico-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) 2026 Victor Condack</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PixAutomatico.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+*.g.cs linguist-generated=true
+samples/Ledger.Demo/expected-output.txt -text

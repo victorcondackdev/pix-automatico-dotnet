@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build:
+    name: Build, test and pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore PixAutomatico.sln
+
+      - name: Build (warnings are errors)
+        run: dotnet build PixAutomatico.sln -c Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test tests/PixAutomatico.Tests/PixAutomatico.Tests.csproj -c Release --no-build
+          --collect:"XPlat Code Coverage"
+          --results-directory TestResults
+          --logger "trx;LogFileName=results.trx"
+          --logger "console;verbosity=normal"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
+          if-no-files-found: ignore
+
+      - name: Pack
+        run: dotnet pack src/PixAutomatico/PixAutomatico.csproj -c Release --no-build -o artifacts
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: artifacts/*nupkg
+          if-no-files-found: error
+
+  parity:
+    name: Go parity vectors are up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: pix-automatico-dotnet
+
+      - uses: actions/checkout@v4
+        with:
+          repository: victorcondackdev/pix-automatico-go
+          path: pix-automatico-go
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: pix-automatico-go/go.mod
+
+      - name: Regenerate and diff
+        working-directory: pix-automatico-dotnet
+        run: |
+          go -C tools/vecgen run . > tests/PixAutomatico.Tests/Parity/GoVectors.g.cs
+          git diff --exit-code -- tests/PixAutomatico.Tests/Parity/GoVectors.g.cs
+
+  demo:
+    name: Demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet run --project samples/PixAutomatico.Demo -c Release
+
+  trimming:
+    name: Trimming smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish trimmed consumer
+        run: |
+          mkdir -p /tmp/aotcheck && cd /tmp/aotcheck
+          dotnet new console --force -o . -n AotCheck
+          dotnet add reference "$GITHUB_WORKSPACE/src/PixAutomatico/PixAutomatico.csproj"
+          cat > Program.cs <<'CS'
+          using PixAutomatico.Scenarios;
+          System.Console.Write(ScenarioRunner.Run("clock 2026-11-27T10:00\naccount 12345678909 10.00\n"));
+          CS
+          dotnet publish -c Release -r linux-x64 --self-contained -p:PublishTrimmed=true -p:TreatWarningsAsErrors=true -o out
+          ./out/AotCheck
