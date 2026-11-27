@@ -19,7 +19,7 @@ jobs:
     name: Build, test and pack
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -61,11 +61,11 @@ jobs:
     name: Go parity vectors are up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: pix-automatico-dotnet
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: victorcondackdev/pix-automatico-go
           path: pix-automatico-go
@@ -84,7 +84,7 @@ jobs:
     name: Demo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -94,7 +94,7 @@ jobs:
     name: Trimming smoke test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v4
         with:
