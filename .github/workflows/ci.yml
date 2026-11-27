@@ -70,7 +70,7 @@ jobs:
           repository: victorcondackdev/pix-automatico-go
           path: pix-automatico-go
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: pix-automatico-go/go.mod
 
